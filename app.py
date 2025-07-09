@@ -62,12 +62,17 @@ def predict():
         if resume_score < 0 or resume_score > 100:
             return jsonify({'error': 'Resume score must be between 0 and 100'}), 400
         
-        # Prepare input for prediction using expected columns order
+        # Prepare input for prediction with proper column names to avoid sklearn warning
         if expected_columns:
-            # Create input array in the expected order
-            input_features = np.array([[cgpa, resume_score]])
+            # Create DataFrame with proper column names
+            input_df = pd.DataFrame({
+                'cgpa': [cgpa],
+                'resume_score': [resume_score]
+            })
+            # Ensure columns are in the expected order
+            input_features = input_df[expected_columns]
         else:
-            # Fallback to default order
+            # Fallback to numpy array
             input_features = np.array([[cgpa, resume_score]])
         
         # Make prediction
@@ -126,8 +131,13 @@ def health_check():
         'model_loaded': model is not None
     })
 
-# ✅ Load model on startup (even with gunicorn)
+# Load model on startup
 model_loaded = load_model()
 
 if not model_loaded:
     print("Warning: Model not loaded. Please check your pickle file.")
+
+# Essential for Render deployment
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
