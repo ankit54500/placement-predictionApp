@@ -1,0 +1,998 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML Prediction App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 100%;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            height: 60px;
+            z-index: 1000;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 0 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .header-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 60px;
+            width: 280px;
+            height: calc(100vh - 60px);
+            background: white;
+            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1);
+            z-index: 999;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            text-align: center;
+        }
+
+        .sidebar-header h2 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header p {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            margin-bottom: 5px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            color: #007bff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: rgba(0, 123, 255, 0.1);
+            border-left-color: #007bff;
+            color: #0056b3;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            opacity: 0.7;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            margin-top: 60px;
+            padding: 0;
+            min-height: calc(100vh - 60px);
+        }
+
+        .section {
+            min-height: 100vh;
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .section:nth-child(even) {
+            background: white;
+        }
+
+        .section h1 {
+            font-size: 3rem;
+            color: #007bff;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .section h2 {
+            font-size: 2.5rem;
+            color: #007bff;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .section p {
+            font-size: 1.2rem;
+            text-align: center;
+            max-width: 800px;
+            margin-bottom: 30px;
+            color: #666;
+        }
+
+        /* Hero Section */
+        .hero-image {
+            width: 100%;
+            max-width: 600px;
+            height: 300px;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            border-radius: 15px;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 123, 255, 0.3);
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .card h3 {
+            color: #007bff;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: #007bff;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        /* Mobile Responsive */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .section {
+                padding: 40px 20px;
+            }
+
+            .section h1 {
+                font-size: 2rem;
+            }
+
+            .section h2 {
+                font-size: 1.8rem;
+            }
+
+            .header-buttons {
+                gap: 8px;
+            }
+
+            .header-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+        }
+
+        /* Form Styles */
+        .prediction-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            max-width: 1200px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .prediction-form {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .prediction-form h3 {
+            color: #007bff;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #007bff;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .predict-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .predict-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .prediction-result {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-display {
+            text-align: center;
+            width: 100%;
+        }
+
+        .result-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .result-display h3 {
+            color: #007bff;
+            margin-bottom: 15px;
+        }
+
+        .result-amount {
+            font-size: 2.5rem;
+            color: #28a745;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .upload-area {
+            border: 2px dashed #007bff;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px 0;
+        }
+
+        .upload-area:hover {
+            background: rgba(0, 123, 255, 0.05);
+        }
+
+        .upload-area.dragover {
+            background: rgba(0, 123, 255, 0.1);
+            border-color: #0056b3;
+        }
+
+        .image-preview {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .train-form {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        .code-window {
+            background: #1e1e1e;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #d4d4d4;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+        }
+
+        .code-tabs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .code-tab {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .code-tab.active {
+            background: #007bff;
+        }
+
+        .project-image {
+            width: 100%;
+            max-width: 500px;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            .prediction-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" onclick="toggleSidebar()">
+        ☰
+    </button>
+
+    <!-- Scroll Indicator -->
+    <div class="scroll-indicator">
+        <div class="scroll-progress" id="scrollProgress"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-buttons">
+            <a href="#" class="header-btn">📤 Share</a>
+            <a href="https://ankit-bcawala.web.app/" class="header-btn" target="_blank">👨‍💻 My Portfolio</a>
+            <a href="#" class="header-btn">⚙️ Settings</a>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>🤖 Navigation</h2>
+            <p>ML Prediction Dashboard</p>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="#home" class="nav-link active" onclick="scrollToSection('home')">
+                    <span class="nav-icon">🏠</span>
+                    Home
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#project" class="nav-link" onclick="scrollToSection('project')">
+                    <span class="nav-icon">📊</span>
+                    Project
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#documentation" class="nav-link" onclick="scrollToSection('documentation')">
+                    <span class="nav-icon">📚</span>
+                    Documentation
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#source-code" class="nav-link" onclick="scrollToSection('source-code')">
+                    <span class="nav-icon">💻</span>
+                    Source Code
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#about" class="nav-link" onclick="scrollToSection('about')">
+                    <span class="nav-icon">ℹ️</span>
+                    About
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#contact" class="nav-link" onclick="scrollToSection('contact')">
+                    <span class="nav-icon">📧</span>
+                    Contact Me
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Home Section -->
+        <section id="home" class="section">
+            <div class="hero-image">
+                🤖 ML Prediction System
+            </div>
+            <h1>Placement Prediction App</h1>
+            <p>Welcome to the Placement Prediction App! Use this tool to estimate your chances of getting placed based
+                on your academic performance and resume score. </p>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Accurate Predictions</h3>
+                    <p>Advanced ML algorithms for accurate placement prediction</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Real-time Results</h3>
+                    <p>Get instant predictions with our optimized model</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Secure & Private</h3>
+                    <p>Your academic and personal data is protected with enterprise-grade security</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Project Section - Now with Prediction Form -->
+        <section id="project" class="section">
+            <h2>Placement Prediction</h2>
+            <p>Enter your academic details to predict placement probability</p>
+
+            <div class="prediction-container">
+                <!-- Prediction Form -->
+                <div class="prediction-form">
+                    <h3>📋 Enter Your Details</h3>
+                    <form id="predictionForm">
+                        <div class="form-group">
+                            <label for="cgpa">CGPA (Grade Point Average)</label>
+                            <input type="number" id="cgpa" name="cgpa" step="0.1" min="0" max="10" required>
+                            <div class="input-info">Enter your CGPA (0.00 to 10.00)</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="resume_score">Resume Score</label>
+                            <input type="number" id="resume_score" name="resume_score" step="0.1" min="0" max="10"
+                                required>
+                            <div class="input-info">Enter your resume score (0.00 to 10.00)</div>
+                        </div>
+
+                        <button type="submit" class="predict-btn" id="predictBtn">🔮 Predict Placement Status</button>
+                    </form>
+                </div>
+
+                <!-- Prediction Result -->
+                <div class="prediction-result">
+                    <div class="result-display">
+                        <div class="loading" id="loading">
+                            <div class="spinner"></div>
+                            <p>Analyzing your data...</p>
+                        </div>
+
+                        <div id="initialMessage">
+                            <div class="result-icon">💼</div>
+                            <h3>Ready for Prediction</h3>
+                            <p>Fill out the form to getting your placement estimate.</p>
+                        </div>
+
+                        <div class="result" id="result">
+                            <h3 id="resultTitle"></h3>
+                            <div class="result-details" id="resultDetails"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Documentation Section -->
+        <section id="documentation" class="section">
+            <h2>Documentation</h2>
+            <div class="card">
+                <h3>📚 User Guide</h3>
+                <p><strong>Overview:</strong><br>
+                    This section helps users understand how to use the Placement Prediction App effectively.
+                </p>
+                <p><strong>Steps to Use:</strong></p>
+                <ol>
+
+                    <li><strong>Enter Details:</strong><br>
+                        - Input your <strong>CGPA</strong> (on a scale of 1 to 10).<br>
+                        - Enter your <strong>Resume Score</strong> (on a scale of 1 to 10).
+                    </li>
+                    <li><strong>Click on Predict:</strong> The system will process your data and show your placement
+                        prediction result.</li>
+                    <li><strong>Interpret the Output:</strong><br>
+                        - <strong>Placed</strong>: High chances of placement.<br>
+                        - <strong>Not Placed</strong>: Lower chances; consider improving your profile.
+                    </li>
+                </ol>
+                <p><strong>Troubleshooting Tips:</strong><br>
+                    - Make sure you enter numerical values.<br>
+                    - If the app crashes, check if the model file and server are running properly.
+                </p>
+
+            </div>
+            <div class="card">
+                <h3>🔧 API Reference</h3>
+                <p>Detailed API documentation with endpoints, input parameters (like CGPA and resume score), response
+                    formats, and code examples for seamless integration.</p>
+
+            </div>
+            <div class="card">
+                <h3>📖 Technical Specifications</h3>
+                <p><strong>Model Overview:</strong><br>
+                    - <strong>Algorithm Used:</strong> Logistic Regression (or your selected algorithm)<br>
+                    - <strong>Input Features:</strong> CGPA, Resume Score<br>
+                    - <strong>Target Output:</strong> Binary (Placed / Not Placed)
+                </p>
+
+                <p><strong>Preprocessing:</strong><br>
+                    - Standardization of input features using <code>StandardScaler</code><br>
+                    - Handling of input validation in both frontend and backend
+                </p>
+
+                <p><strong>Deployment Stack:</strong><br>
+                    - <strong>Backend:</strong> Flask (Python)<br>
+                    - <strong>Model Storage:</strong> Pickled <code>.pkl</code> file (joblib or pickle)<br>
+                    - <strong>Frontend:</strong> HTML/CSS/JS or Streamlit
+                </p>
+
+                <p><strong>Scalability Notes:</strong><br>
+                    The app can be extended to include more features like aptitude score, interview score, or project
+                    experience.
+                </p>
+            </div>
+        </section>
+
+        <!-- Source Code Section -->
+        <section id="source-code" class="section">
+            <h2>Source Code</h2>
+            <div class="card">
+                <h3>💻 GitHub Repository</h3>
+                <p>
+                    The complete source code for the Placement Prediction App will soon be available on our GitHub
+                    repository.
+                    You'll be able to explore implementation details, contribute to the project, and stay updated with
+                    future enhancements.
+                    <br><em>(GitHub link coming soon)</em>
+                </p>
+
+            </div>
+            <div class="card">
+                <h3>🔍 Code Structure</h3>
+                <p>
+                    The project follows a clean, modular, and scalable architecture to ensure ease of understanding,
+                    maintenance, and future enhancements:
+                </p>
+                <ul>
+                    <li><strong>Separation of Concerns:</strong> Clearly divided components for frontend, backend, and
+                        machine learning logic.</li>
+                    <li><strong>Modular Design:</strong> Each functionality (data preprocessing, model training,
+                        prediction, API handling) is organized into dedicated modules for better readability and
+                        reusability.</li>
+                    <li><strong>Descriptive Comments:</strong> Code is well-documented with inline comments and function
+                        docstrings to aid understanding for contributors and reviewers.</li>
+                    <li><strong>Folder Structure:</strong> Logical folder hierarchy separating assets, models,
+                        utilities, and routes/controllers.</li>
+                    <li><strong>Scalability:</strong> Designed to support additional features like more input
+                        parameters, improved UI, or deployment to cloud platforms.</li>
+                </ul>
+
+                <div class="card">
+                    <h3>🛠️ Development Setup</h3>
+                    <p>
+                        Follow these step-by-step instructions to set up the development environment and run the
+                        Placement Prediction App locally:
+                    </p>
+                    <ol>
+                        <li><strong>Clone the Repository:</strong><br>
+                            <code>git clone [your-repo-link]</code> <br>
+                            <em>(GitHub link to be added soon)</em>
+                        </li>
+                        <li><strong>Navigate to the Project Directory:</strong><br>
+                            <code>cd placement-prediction-app</code>
+                        </li>
+                        <li><strong>Create a Virtual Environment:</strong><br>
+                            <code>python -m venv venv</code>
+                        </li>
+                        <li><strong>Activate the Virtual Environment:</strong><br>
+                            - Windows: <code>venv\Scripts\activate</code><br>
+                            - macOS/Linux: <code>source venv/bin/activate</code>
+                        </li>
+                        <li><strong>Install Dependencies:</strong><br>
+                            <code>pip install -r requirements.txt</code>
+                        </li>
+                        <li><strong>Run the Application:</strong><br>
+                            <code>python app.py</code><br>
+                            The application will start on <code>http://localhost:5000</code> or as configured.
+                        </li>
+                    </ol>
+                    <p>
+                        Ensure Python (3.8 or higher) is installed before starting. For additional help, refer to the
+                        <strong>User Guide</strong> or <strong>API Reference</strong>.
+                    </p>
+
+                </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="section">
+            <h2>About</h2>
+            <div class="card">
+                <h3>🎯 Mission</h3>
+                <p>To empower students and institutions with intelligent placement prediction tools using advanced
+                    machine learning, helping individuals better prepare for job opportunities.</p>
+
+            </div>
+            <div class="card">
+                <h3>🚀 Vision</h3>
+                <p>Creating innovative ML solutions that bridge the gap between student data and actionable career
+                    insights through simple, user-friendly applications.</p>
+
+            </div>
+            <div class="card">
+                <h3>💡 Technology Stack</h3>
+                <p>
+                    This Placement Prediction App is developed using a robust and scalable technology stack to ensure
+                    high performance and ease of use:
+                </p>
+                <ul>
+                    <li><strong>Python:</strong> Core programming language used for model development and backend logic.
+                    </li>
+                    <li><strong>Flask:</strong> Lightweight web framework used to build the backend API.</li>
+                    <li><strong>Scikit-learn:</strong> Machine learning library used for model training and prediction.
+                    </li>
+                    <li><strong>HTML, CSS, JavaScript:</strong> Used to build an interactive and responsive frontend
+                        interface.</li>
+                </ul>
+
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="section">
+            <h2>Contact Me</h2>
+            <div class="card">
+                 <h3>📧 Get In Touch</h3>
+    <p>
+        Have questions about the Placement Prediction App or interested in working together? I'd love to hear from you!
+        Whether it's feedback, ideas, or potential collaboration, feel free to reach out.
+    </p>
+            </div>
+            <div class="card">
+                <h3>🌐 Connect</h3>
+    <p>
+        You can connect with me through the following platforms:<br>
+        <strong>Email:</strong> <a href="mailto:bcawala00@gmail.com?subject=Placement Prediction Inquiry">bcawala00@gmail.com</a>
+<br>
+        <strong>LinkedIn:</strong> <a href="https://www.linkedin.com/in/ankit-raj-371950278/" target="_blank">linkedin.com/in/ankit-raj-371950278</a><br>
+        <strong>GitHub:</strong> <a href="#" target="_blank"> Soon be updated</a><br>
+    </p>
+            </div>
+            <div class="card">
+                <h3>🤝 Collaboration</h3>
+    <p>
+        I’m always open to meaningful collaborations, technical feedback, and contributions to this project or other data-driven initiatives. 
+        Let’s work together to build impactful solutions and grow as a community!
+    </p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Smooth scrolling function
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+
+            // Update active navigation
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => link.classList.remove('active'));
+            document.querySelector(`a[href="#${sectionId}"]`).classList.add('active');
+
+            // Close mobile menu if open
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('active');
+            }
+        }
+
+        // Toggle mobile sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // Scroll progress indicator
+        window.addEventListener('scroll', () => {
+            const scrollProgress = document.getElementById('scrollProgress');
+            const scrolled = (window.pageYOffset / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+            scrollProgress.style.width = scrolled + '%';
+        });
+
+        // Update active navigation on scroll
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('.section');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 100;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= sectionTop && pageYOffset < sectionTop + sectionHeight) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('sidebar');
+            const menuBtn = document.querySelector('.mobile-menu-btn');
+
+            if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+                sidebar.classList.remove('active');
+            }
+        });
+
+        // Prediction form handling
+        document.getElementById('predictionForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const cgpa = parseFloat(document.getElementById('cgpa').value);
+            const resume_score = parseFloat(document.getElementById('resume_score').value);
+
+            // Validate inputs
+            if (cgpa < 0 || cgpa > 10) {
+                showError('CGPA must be between 0 and 10');
+                return;
+            }
+
+            if (resume_score < 0 || resume_score > 100) {
+                showError('Resume score must be between 0 and 100');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('predictBtn').disabled = true;
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        cgpa: cgpa,
+                        resume_score: resume_score
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess(data);
+                } else {
+                    showError(data.error || 'Prediction failed');
+                }
+
+            } catch (error) {
+                showError('Network error. Please try again.');
+                console.error('Error:', error);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('predictBtn').disabled = false;
+            }
+        });
+
+        function showSuccess(data) {
+            const resultDiv = document.getElementById('result');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultDetails = document.getElementById('resultDetails');
+
+            resultDiv.className = 'result success';
+            resultDiv.style.display = 'block';
+
+            const statusClass = data.prediction === 'Placed' ? 'placed' : 'not-placed';
+            resultTitle.innerHTML = `Prediction: <span class="${statusClass}">${data.prediction}</span>`;
+
+            let detailsHTML = `
+                <div><strong>Input Details:</strong></div>
+                <div>CGPA: ${data.cgpa}</div>
+                <div>Resume Score: ${data.resume_score}</div>
+            `;
+
+            if (data.confidence) {
+                const confidencePercent = (data.confidence * 100).toFixed(1);
+                detailsHTML += `
+                    <div class="confidence">
+                        <strong>Confidence:</strong> ${confidencePercent}%
+                    </div>
+                `;
+            }
+
+            resultDetails.innerHTML = detailsHTML;
+        }
+
+        function showError(message) {
+            const resultDiv = document.getElementById('result');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultDetails = document.getElementById('resultDetails');
+
+            resultDiv.className = 'result error';
+            resultDiv.style.display = 'block';
+
+            resultTitle.textContent = 'Error';
+            resultDetails.textContent = message;
+        }
+
+        // Add input validation on change
+        document.getElementById('cgpa').addEventListener('input', function (e) {
+            const value = parseFloat(e.target.value);
+            if (value > 10) e.target.value = 10;
+            if (value < 0) e.target.value = 0;
+        });
+
+        document.getElementById('resume_score').addEventListener('input', function (e) {
+            const value = parseFloat(e.target.value);
+            if (value > 100) e.target.value = 100;
+            if (value < 0) e.target.value = 0;
+        });
+    </script>
+</body>
+
+</html>
