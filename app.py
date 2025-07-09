@@ -126,12 +126,8 @@ def health_check():
         'model_loaded': model is not None
     })
 
-if __name__ == '__main__':
-    # Load model on startup
-    model_loaded = load_model()
-    
-    if not model_loaded:
-        print("Warning: Model not loaded. Please check your pickle file.")
-    
-    # Run the app
-    app.run(debug=True, host='0.0.0.0', port=5000)
+# ✅ Load model on startup (even with gunicorn)
+model_loaded = load_model()
+
+if not model_loaded:
+    print("Warning: Model not loaded. Please check your pickle file.")
